@@ -72,8 +72,8 @@ async function initializeDatabase() {
     if (USE_MYSQL) {
         await initMysqlDb();
         try {
-            await mysqlPool.query("UPDATE accounts SET role='Admin' WHERE email='admin@lab7.com'");
-            console.log("🚀 Automatically promoted admin@lab7.com to Admin in MySQL!");
+            await mysqlPool.query("UPDATE accounts SET role='Admin' WHERE email='papajulietbravo11@gmail.com'");
+            console.log("🚀 Automatically promoted papajulietbravo11@gmail.com to Admin in MySQL!");
         } catch (err) {
             console.error("Failed to automatically promote admin:", err.message);
         }
@@ -81,11 +81,11 @@ async function initializeDatabase() {
         initJsonDb();
         try {
             const db = getJsonDb();
-            const adminAcc = db.accounts.find(x => x.email === 'admin@lab7.com');
+            const adminAcc = db.accounts.find(x => x.email === 'papajulietbravo11@gmail.com');
             if (adminAcc && adminAcc.role !== 'Admin') {
                 adminAcc.role = 'Admin';
                 db.save();
-                console.log("🚀 Automatically promoted admin@lab7.com to Admin in local JSON!");
+                console.log("🚀 Automatically promoted papajulietbravo11@gmail.com to Admin in local JSON!");
             }
         } catch (err) {
             console.error("Failed to automatically promote local admin:", err.message);
