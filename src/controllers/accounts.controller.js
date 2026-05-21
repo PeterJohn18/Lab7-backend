@@ -197,7 +197,7 @@ async function forgotPassword(req, res) {
         await pool.query('UPDATE accounts SET resetToken=?,resetTokenExpires=? WHERE id=?', [resetToken, resetExpires, account.id]);
     } else {
         const db = getDb();
-        const acc = db.accounts.find(x => x.email === email);
+        const acc = db.accounts.find(x => x.id === account.id);
         acc.resetToken = resetToken;
         acc.resetTokenExpires = resetExpires.toISOString();
         db.save();
