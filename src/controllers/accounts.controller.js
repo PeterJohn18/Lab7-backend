@@ -139,12 +139,12 @@ async function register(req, res) {
 
     sendVerificationEmail(email, getOrigin(req), verificationToken).catch(console.error);
 
-    // Include verification link in response only if real SMTP is not configured (for dev/demo fallback)
-    const isSmtpConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER);
+    // Include verification link in response only if no email provider is configured (for dev/demo fallback)
+    const isEmailConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER) || !!process.env.RESEND_API_KEY || !!process.env.BREVO_API_KEY;
     const verifyUrl = `${getOrigin(req)}/account/verify-email?token=${verificationToken}`;
     res.json({
         message: 'Registration successful — please check your email to verify your account',
-        ...(isSmtpConfigured ? {} : { verificationLink: verifyUrl })
+        ...(isEmailConfigured ? {} : { verificationLink: verifyUrl })
     });
 }
 
