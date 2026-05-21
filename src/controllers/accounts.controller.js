@@ -124,9 +124,9 @@ async function register(req, res) {
     const passwordHash = bcrypt.hashSync(password, 10);
     const verificationToken = uuidv4();
 
-    // Auto-verify everyone (Admin and User) so nobody gets stuck waiting for emails
+    // Admin (first account) requires email verification; regular Users are auto-verified
     const isAdmin = role === 'Admin';
-    const verifiedValue = new Date();
+    const verifiedValue = isAdmin ? null : new Date();
     const tokenValue = isAdmin ? verificationToken : null;
 
     if (USE_MYSQL) {
@@ -142,8 +142,14 @@ async function register(req, res) {
         db.save();
     }
 
-    // Everyone is auto-verified, so everyone can log in immediately
-    res.json({ message: 'Registration successful, you can now log in' });
+    if (isAdmin) {
+        // Admin needs email verification
+        sendVerificationEmail(email, getOrigin(req), verificationToken).catch(console.error);
+        res.json({ message: 'Registration successful — please check your email to verify your account' });
+    } else {
+        // Regular users are auto-verified, can log in immediately
+        res.json({ message: 'Registration successful, you can now log in' });
+    }
 }
 
 // ─── POST /accounts/verify-email ─────────────────────────────────────────────
