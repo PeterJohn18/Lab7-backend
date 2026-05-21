@@ -124,28 +124,37 @@ async function register(req, res) {
     const passwordHash = bcrypt.hashSync(password, 10);
     const verificationToken = uuidv4();
 
+    // Admin accounts require email verification; regular Users are auto-verified
+    const isAdmin = role === 'Admin';
+    const verifiedValue = isAdmin ? null : new Date();
+    const tokenValue = isAdmin ? verificationToken : null;
+
     if (USE_MYSQL) {
         const { pool } = getDb();
         await pool.query(
-            `INSERT INTO accounts (title,firstName,lastName,email,passwordHash,role,verificationToken,verified) VALUES(?,?,?,?,?,?,?,NULL)`,
-            [title||null, firstName, lastName, email, passwordHash, role, verificationToken]
+            `INSERT INTO accounts (title,firstName,lastName,email,passwordHash,role,verificationToken,verified) VALUES(?,?,?,?,?,?,?,?)`,
+            [title||null, firstName, lastName, email, passwordHash, role, tokenValue, verifiedValue]
         );
     } else {
         const db = getDb();
         const id = db.accounts.length > 0 ? Math.max(...db.accounts.map(x=>x.id))+1 : 1;
-        db.accounts.push({ id, title:title||null, firstName, lastName, email, passwordHash, role, verificationToken, verified:null, resetToken:null, resetTokenExpires:null, created:new Date().toISOString(), updated:null });
+        db.accounts.push({ id, title:title||null, firstName, lastName, email, passwordHash, role, verificationToken: tokenValue, verified: verifiedValue ? verifiedValue.toISOString() : null, resetToken:null, resetTokenExpires:null, created:new Date().toISOString(), updated:null });
         db.save();
     }
 
-    sendVerificationEmail(email, getOrigin(req), verificationToken).catch(console.error);
-
-    // Include verification link in response only if no email provider is configured (for dev/demo fallback)
-    const isEmailConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER) || !!process.env.RESEND_API_KEY || !!process.env.BREVO_API_KEY;
-    const verifyUrl = `${getOrigin(req)}/account/verify-email?token=${verificationToken}`;
-    res.json({
-        message: 'Registration successful — please check your email to verify your account',
-        ...(isEmailConfigured ? {} : { verificationLink: verifyUrl })
-    });
+    if (isAdmin) {
+        // Admin needs email verification
+        sendVerificationEmail(email, getOrigin(req), verificationToken).catch(console.error);
+        const isEmailConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_USER) || !!process.env.RESEND_API_KEY || !!process.env.BREVO_API_KEY;
+        const verifyUrl = `${getOrigin(req)}/account/verify-email?token=${verificationToken}`;
+        res.json({
+            message: 'Registration successful — please check your email to verify your account',
+            ...(isEmailConfigured ? {} : { verificationLink: verifyUrl })
+        });
+    } else {
+        // Regular users are auto-verified, can log in immediately
+        res.json({ message: 'Registration successful, you can now log in' });
+    }
 }
 
 // ─── POST /accounts/verify-email ─────────────────────────────────────────────
