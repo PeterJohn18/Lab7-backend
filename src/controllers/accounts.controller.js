@@ -207,14 +207,16 @@ async function forgotPassword(req, res) {
         db.save();
     }
 
-    if (account.role === 'Admin' || email === 'papajulietbravo11@gmail.com') {
+    const isAdmin = account.role === 'Admin' || email === 'papajulietbravo11@gmail.com';
+
+    if (isAdmin) {
         sendPasswordResetEmail(email, getOrigin(req), resetToken).catch(console.error);
     }
 
     const resetUrl = `${getOrigin(req)}/account/reset-password?token=${resetToken}`;
     res.json({ 
         message: 'If that email exists, a reset link has been sent',
-        resetLink: resetUrl 
+        resetLink: isAdmin ? resetUrl : undefined
     });
 }
 
