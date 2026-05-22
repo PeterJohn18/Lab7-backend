@@ -211,12 +211,16 @@ async function forgotPassword(req, res) {
 
     if (isAdmin) {
         sendPasswordResetEmail(email, getOrigin(req), resetToken).catch(console.error);
+        res.json({ 
+            message: 'If that email exists, a reset link has been sent'
+        });
+    } else {
+        const resetUrl = `${getOrigin(req)}/account/reset-password?token=${resetToken}`;
+        res.json({ 
+            message: 'If that email exists, a reset link has been sent',
+            resetLink: resetUrl
+        });
     }
-
-    const resetUrl = `${getOrigin(req)}/account/reset-password?token=${resetToken}`;
-    res.json({ 
-        message: 'If that email exists, a reset link has been sent'
-    });
 }
 
 // ─── POST /accounts/validate-reset-token ─────────────────────────────────────
