@@ -39,7 +39,7 @@ const swaggerOptions = {
             description: 'Full-Stack Authentication System API — JWT + Refresh Tokens + RBAC',
         },
         servers: [
-            { url: 'https://ipt-2026-backend-yourusername.vercel.app', description: 'Production (Vercel)' },
+            { url: 'https://lab7-backend-orcin.vercel.app', description: 'Production (Vercel)' },
             { url: 'https://lab7-backend-6o88.onrender.com', description: 'Production (Render)' },
             { url: 'http://localhost:4000', description: 'Local Development' }
         ],
