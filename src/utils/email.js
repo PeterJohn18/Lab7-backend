@@ -137,21 +137,9 @@ async function sendEmail({ to, subject, html }) {
             return info;
         }
 
-        // Fallback to standard SMTP (Gmail/etc.) or Ethereal test mail
-        const t = await getTransporter();
-        const info = await Promise.race([
-            t.sendMail({
-                from: process.env.EMAIL_FROM || '"Lab7 Auth" <noreply@lab7.com>',
-                to, subject, html,
-            }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP timeout')), 8000))
-        ]);
-
-        const previewUrl = nodemailer.getTestMessageUrl(info);
-        if (previewUrl) {
-            console.log(`📬 Email Preview URL: ${previewUrl}`);
-        }
-        return info;
+        // Mock sending the email to prevent Vercel from hanging
+        console.log(`📬 [MOCKED EMAIL] Subject: ${subject} | To: ${to}`);
+        return true;
     } catch (err) {
         // Email failure is non-fatal — log it and continue
         console.warn(`⚠️  Email send failed (non-fatal): ${err.message}`);

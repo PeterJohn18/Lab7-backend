@@ -207,20 +207,13 @@ async function forgotPassword(req, res) {
         db.save();
     }
 
-    const isAdmin = account.role === 'Admin' || email === 'papajulietbravo11@gmail.com';
-
-    if (isAdmin) {
-        sendPasswordResetEmail(email, getOrigin(req), resetToken).catch(console.error);
-        res.json({ 
-            message: 'If that email exists, a reset link has been sent'
-        });
-    } else {
-        const resetUrl = `${getOrigin(req)}/account/reset-password?token=${resetToken}`;
-        res.json({ 
-            message: 'If that email exists, a reset link has been sent',
-            resetLink: resetUrl
-        });
-    }
+    const resetUrl = `${getOrigin(req)}/account/reset-password?token=${resetToken}`;
+    
+    // Always return the resetLink so it shows on the UI without needing real emails
+    res.json({ 
+        message: 'Password reset link generated',
+        resetLink: resetUrl
+    });
 }
 
 // ─── POST /accounts/validate-reset-token ─────────────────────────────────────
