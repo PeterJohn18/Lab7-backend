@@ -39,6 +39,7 @@ const swaggerOptions = {
             description: 'Full-Stack Authentication System API — JWT + Refresh Tokens + RBAC',
         },
         servers: [
+            { url: 'https://ipt-2026-backend-yourusername.vercel.app', description: 'Production (Vercel)' },
             { url: 'https://lab7-backend-6o88.onrender.com', description: 'Production (Render)' },
             { url: 'http://localhost:4000', description: 'Local Development' }
         ],
@@ -68,14 +69,20 @@ app.use(errorHandler);
 function start() {
     try {
         initializeDatabase();
-        app.listen(PORT, () => {
-            console.log(`\n✅ Lab7 API running at http://localhost:${PORT}`);
-            console.log(`📚 Swagger docs at  http://localhost:${PORT}/api-docs\n`);
-        });
+        if (require.main === module) {
+            app.listen(PORT, () => {
+                console.log(`\n✅ Lab7 API running at http://localhost:${PORT}`);
+                console.log(`📚 Swagger docs at  http://localhost:${PORT}/api-docs\n`);
+            });
+        }
     } catch (err) {
         console.error('❌ Failed to start server:', err.message);
-        process.exit(1);
+        if (require.main === module) {
+            process.exit(1);
+        }
     }
 }
 
 start();
+
+module.exports = app;
